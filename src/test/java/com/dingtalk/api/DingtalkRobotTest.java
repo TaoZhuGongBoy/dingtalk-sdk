@@ -5,7 +5,12 @@ import com.dingtalk.api.response.OapiRobotSendResponse;
 import com.taobao.api.ApiException;
 import org.junit.Test;
 
+import javax.crypto.Mac;
+import javax.crypto.spec.SecretKeySpec;
+import java.net.URLEncoder;
 import java.util.Arrays;
+import java.util.Base64;
+
 
 /**
  * <p> 钉钉机器自定义机器人测试 </p>
@@ -15,11 +20,23 @@ import java.util.Arrays;
  * @create_date 2019/7/24 21:44
  */
 public class DingtalkRobotTest {
+    private static final String secret = "SEC0a386394469a9b8d86bdc80bb812d5c9681766ec07995f7a78f7d5392469069f";
+
+    private static final String webhook = "https://oapi.dingtalk.com/robot/send?access_token=a3e63d7235a6d354084a23dc918096c49d3f9422550e3d83ccf8e7655d651294";
+
+
 
     //发送普通文本消息
     @Test
-    public void textMessage() throws ApiException {
-        DingTalkClient client = new DefaultDingTalkClient("https://oapi.dingtalk.com/robot/send?access_token=2324980345ufnklasjnfaiopuw3rnq9o32874yq29035ryhvq2");
+    public void textMessage() throws Exception {
+        Long timestamp = System.currentTimeMillis();
+        String stringToSign = timestamp + "\n" + secret;
+        Mac mac = Mac.getInstance("HmacSHA256");
+        mac.init(new SecretKeySpec(secret.getBytes("UTF-8"), "HmacSHA256"));
+        byte[] signData = mac.doFinal(stringToSign.getBytes("UTF-8"));
+        String sign = URLEncoder.encode(new String(Base64.getEncoder().encode((signData)), "UTF-8"));
+        String url=webhook+"&sign=" + sign + "&timestamp=" + timestamp;
+        DingTalkClient client = new DefaultDingTalkClient(url);
         OapiRobotSendRequest request = new OapiRobotSendRequest();
         request.setMsgtype("text");
         OapiRobotSendRequest.Text text = new OapiRobotSendRequest.Text();
@@ -27,7 +44,7 @@ public class DingtalkRobotTest {
         request.setText(text);
 
         OapiRobotSendRequest.At at = new OapiRobotSendRequest.At();
-        at.setIsAtAll("true");//设置@所有的人
+        at.setIsAtAll("false");//设置@所有的人
         request.setAt(at);
         OapiRobotSendResponse response = client.execute(request);
         System.out.println(response.getErrcode());
