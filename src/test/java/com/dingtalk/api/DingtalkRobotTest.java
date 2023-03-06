@@ -20,9 +20,9 @@ import java.util.Base64;
  * @create_date 2019/7/24 21:44
  */
 public class DingtalkRobotTest {
-    private static final String secret = "SEC0a386394469a9b8d86bdc80bb812d5c9681766ec07995f7a78f7d5392469069f";
+    private static final String secret = "";
 
-    private static final String webhook = "https://oapi.dingtalk.com/robot/send?access_token=a3e63d7235a6d354084a23dc918096c49d3f9422550e3d83ccf8e7655d651294";
+    private static final String webhook = "";
 
 
 
